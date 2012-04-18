@@ -9,7 +9,7 @@ Due to the limitation above it is not currently suitable as a general purpose ma
 
 Full details of the algorithm can be found at: http://41j.com/blog/2011/10/tialloc-a-small-memory-allocator/
 
-This software is licensed under the FreeBSD license. This is a GPL compatible license and as such you are free to include this code in GPL and BSD style projects.
+This software is licensed under the FreeBSD license. This is a GPL compatible license and as such you are free to include this code in GPL and BSD style projects. A full copy of the license is included in the license.txt file.
 
 If you have any questions or would like to contribute, please contact me at new at sgenomics dot org.
 
