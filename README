@@ -1,0 +1,16 @@
+tialloc - A memory allocator for small memory blocks
+----------------------------------------------------
+
+tialloc is a memory allocator for small blocks of memory. As it stands it is not implemented as a malloc replacement, but as a C++ class. This may change in the future.
+
+There are a few drawbacks to tialloc, primarily that it doesn't return memory to the system for allocations <128 bytes. That means that if you do a lot of small allocations, then free them all, that memory will still only be usable for small allocations by tialloc. Larger allocations are passed directly through to malloc and as such are uneffected.
+
+Due to the limitation above it is not currently suitable as a general purpose malloc replacement. Though these issues could no doubt be resolved. However if performing a large number of allocations or <128 bytes, the reduced overhead of tialloc is significant.
+
+Full details of the algorithm can be found at: http://41j.com/blog/2011/10/tialloc-a-small-memory-allocator/
+
+This software is licensed under the FreeBSD license. This is a GPL compatible license and as such you are free to include this code in GPL and BSD style projects.
+
+If you have any questions or would like to contribute, please contact me at new at sgenomics dot org.
+
+Nava Whiteford
