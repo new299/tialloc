@@ -1,5 +1,6 @@
 /* tialloc - Copyright (c) Nava Whiteford 2012
  *
+ * This software is supplied under the zlib license, which is copyfree and GPL compatible.
  * This software is supplied under the FreeBSD license, which is GPL compatible. 
  * See license.txt for full details.
  */
