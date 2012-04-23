@@ -65,7 +65,7 @@ private:
 
     max_tiallocation = 220;
     all_memory = vector<vector<uint8_t *> >(max_tiallocation+1,vector<uint8_t *>());
-    for(int n=1;n<=max_tiallocation;n++) {
+    for(intarch_t n=1;n<=max_tiallocation;n++) {
       free_block_ptr[n] = 0;
 //      initialise(n);
     }
