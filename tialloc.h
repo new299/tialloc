@@ -50,7 +50,7 @@ class tialloc {
 
   small_block *free_block_ptr[256]; // pointers to last_free_blocks
   vector<vector<uint8_t *> > all_memory;    // this isn't required, and should be removed from non-debug implementations.
-  int max_tiallocation; ///< must be less than 255, ideally around 120.
+  intarch_t max_tiallocation; ///< must be less than 255, ideally around 120.
   
   static tialloc *only_instance;
 
@@ -171,7 +171,7 @@ public:
 
   void *realloc(void *addr, intarch_t new_size) {
 
-     int osize = alloc_size(addr);
+     intarch_t osize = alloc_size(addr);
      if(is_tiallocated(addr) && (new_size == osize)) return addr;
 
      void *newaddr = alloc(new_size);
