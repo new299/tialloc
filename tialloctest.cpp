@@ -10,7 +10,7 @@ int main() {
 
   cout << "size of small_block is: " << sizeof(small_block) << endl;
 
-  tialloc::instance()->dump();
+  //tialloc::instance()->dump();
 
   cout << "**************************** Initialisation dump complete" << endl;
 
@@ -20,7 +20,7 @@ int main() {
   *i0 = 0xFE;
   
   cout << "**************************** dump after first alloc follows" << endl;
-  tialloc::instance()->dump();
+  //tialloc::instance()->dump();
   cout << "**************************** dump after first alloc complete" << endl;
 
 
@@ -33,7 +33,7 @@ int main() {
   *i3 = 0xFD;
   
   cout << "**************************** dump after all allocs follows" << endl;
-  tialloc::instance()->dump();
+  //tialloc::instance()->dump();
   cout << "**************************** dump after all allocs complete" << endl;
 
   tialloc::instance()->free(i2);
@@ -42,7 +42,7 @@ int main() {
   tialloc::instance()->free(i0);
 
   cout << "***************************** Final dump" << endl;
-  tialloc::instance()->dump();
+  //tialloc::instance()->dump();
 
   vector<uint8_t  > values;
   vector<uint8_t *> memorylocations;
@@ -80,7 +80,7 @@ int main() {
     tialloc::instance()->free(memorylocations[n]);
   }
 
-cout << "DIFFERENT SIZES" << endl;
+  cout << "DIFFERENT SIZES" << endl;
 
 
   // test random sized allocations

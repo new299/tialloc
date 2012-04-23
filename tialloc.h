@@ -322,14 +322,12 @@ public:
   }
 
   void dump(size_t alloc_size) {
-
     cout << "dump " << alloc_size << endl;
     small_block *c = free_block_ptr[alloc_size];
     for(;(intarch_t) c != 0;) {
       cout << "block: " << (uint64_t) c << endl;
       c = c->prev_free_block;
     }
-
   }
 
 };
