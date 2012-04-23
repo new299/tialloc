@@ -189,7 +189,6 @@ public:
 
   void *alloc(intarch_t n_alloc_size=1) {
 
-    alloc_stats_allocs[n_alloc_size]++;
 
     //cout << "alloc: " << n_alloc_size << endl;
     //cout << "enteralloc" << endl;
@@ -205,6 +204,8 @@ public:
       for(size_t n=0;n<24;n++) { ((uint8_t *)a)[n] = 0xFF; }
       return ((uint8_t *)a+24);
     }
+
+    alloc_stats_allocs[n_alloc_size]++;
 
     // are there any free items left?
     if((free_block_ptr[n_alloc_size] != 0) && any_free(free_block_ptr[n_alloc_size])) {
