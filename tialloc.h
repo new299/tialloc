@@ -37,12 +37,13 @@ struct small_block {
   uint8_t         free_chain_start;   // 0xFF means unallocated, otherwise index in to data.
   uint8_t         free_chain_end;     // 0xFF means unallocated, otherwise index in to data.
   uint8_t         alloc_size;
+//  uint8_t         allocs;
 
   #ifdef ENV32BIT
-  uint8_t         data[249];
+  uint8_t         data[248];
   #endif
   #ifdef ENV64BIT
-  uint8_t         data[245];
+  uint8_t         data[244];
   #endif
 } __attribute__((__packed__));
 
@@ -63,7 +64,7 @@ private:
     alloc_stats_allocs = vector<int>(256,0);
     alloc_stats_ints   = vector<int>(256,0);
 
-    max_tiallocation = 220;
+    max_tiallocation = 240;
     all_memory = vector<vector<uint8_t *> >(max_tiallocation+1,vector<uint8_t *>());
     for(intarch_t n=1;n<=max_tiallocation;n++) {
       free_block_ptr[n] = 0;
@@ -97,11 +98,7 @@ public:
       small_block *a = get_tiblock_start(addr);
       return a->alloc_size;
     } else {
-      #ifdef __APPLE__
-      return malloc_size(get_tiblock_start(addr))-24; // ask malloc for it's size.
-      #else
-      return malloc_usable_size(get_tiblock_start(addr))-24;
-      #endif
+      return (*((intarch_t *)get_tiblock_start(addr)));
     }
   }
 
@@ -153,6 +150,7 @@ public:
       this_block->data[free_item_idx] = d_temp;
 
       this_block->free_chain_end = free_item_idx;
+////////      this_block->allocs--;
       return; 
     } else {
       // there are no existing free items
@@ -163,6 +161,7 @@ public:
 
       this_block->free_chain_start = ptr_to_data_idx(this_block,addr);
       this_block->free_chain_end   = this_block->free_chain_start;
+/////////      this_block->allocs--;
 
       if(fb_temp != 0) this_block->prev_free_block = fb_temp;
       return;
@@ -202,6 +201,10 @@ public:
       //cout << "alloc: " << (uint64_t) (uint8_t *)a << endl;
 
       for(size_t n=0;n<24;n++) { ((uint8_t *)a)[n] = 0xFF; }
+
+      // first few bytes should equal size
+      ((intarch_t *)a)[0] = n_alloc_size;
+
       return ((uint8_t *)a+24);
     }
 
@@ -218,8 +221,8 @@ public:
 
         free_block_ptr[n_alloc_size]->free_chain_end = free_block_ptr[n_alloc_size]->data[free_block_ptr[n_alloc_size]->free_chain_end];
 
-        //dump(91);
         void *retval = (void *) (((intarch_t)free_block_ptr[n_alloc_size]->data) + ret_idx);
+////////        free_block_ptr[n_alloc_size]->allocs++;
         return retval;
       } else { 
         //cout << "only one free alloc " << n_alloc_size << endl;
@@ -227,6 +230,7 @@ public:
         free_block_ptr[n_alloc_size]->free_chain_start = 0xFF;
         free_block_ptr[n_alloc_size]->free_chain_end   = 0xFF;
         void *retval = (void *) (((char *) free_block_ptr[n_alloc_size]->data) + ret_idx);
+///////////        free_block_ptr[n_alloc_size]->allocs++;
 
         small_block *free_block_tmp = free_block_ptr[n_alloc_size]->prev_free_block;
         free_block_ptr[n_alloc_size]->prev_free_block  = 0;
@@ -253,12 +257,28 @@ public:
 
   }
 
+  void clear_memory() {
+    for(size_t n=0;n<all_memory.size();n++) {
+      for(size_t m=0;m<all_memory[n].size();m++) {
+        ::free(all_memory[n][m]);
+      }
+      all_memory[n].clear();
+    }
+
+    for(intarch_t n=1;n<=max_tiallocation;n++) {
+      free_block_ptr[n] = 0;
+    }
+ 
+    delete only_instance;
+    only_instance = new tialloc();
+  }
+
   void initialise(int n_alloc_size = 1) {
     alloc_stats_ints[n_alloc_size]++;
 
     //cout << "Size of smallblock: " << sizeof(small_block);
 
-    intarch_t m_alloc_size = 1024*20; 
+    intarch_t m_alloc_size = 200*512; 
 
     // malloc a bunch of memory
     // memory should really only be local, eventually.
@@ -287,6 +307,7 @@ public:
     //t.next_free_block  = 0;
     t.alloc_size       = n_alloc_size;
     t.free_chain_start = 0;
+////////////    t.allocs           = 0;
     //cout << "alloc size: " << n_alloc_size << " fce: " << 244 - (244%n_alloc_size) - n_alloc_size << endl;
     t.free_chain_end   = (data_size-1) - ((data_size-1)%n_alloc_size) - n_alloc_size; // added - n_alloc_size
     for(int n=n_alloc_size;n<data_size;n=n+n_alloc_size) {
@@ -320,6 +341,25 @@ public:
       alloc_sum += alloc_stats_ints[n];
     }
     cout << "total ints: " << alloc_sum << endl;
+
+    cout << "blocks with free elements: (size,total,free,used)";
+    for(size_t n=0;n<all_memory.size();n++) {
+      size_t free=0;
+      size_t used=0;
+      for(size_t m=0;m<all_memory[n].size();m++) {
+        int n_limit = ((200*512)/256);
+        void *current_addr = all_memory[n][m];
+        for(size_t i=0;i<n_limit;i++) {
+          int max = (244/((small_block *) current_addr)->alloc_size);
+/////          int mfree = max - ((small_block *) current_addr)->allocs;
+//////          int mused = ((small_block *) current_addr)->allocs;
+         ////// free+=mfree;
+        /////////  used+=mused;
+          current_addr = (void *) ((intarch_t) current_addr + 256);
+        }
+      }
+      cout << n << " " << free+used << " " << free << " " << used << endl;
+    }
   }
 
   void dump(size_t alloc_size) {
