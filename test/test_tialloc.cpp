@@ -131,6 +131,13 @@ void test_tialloc_random(UnitTest &utf) {
     tialloc::instance()->free(all_allocations[n]);
   }
 
+  // alloc size tests
+  for(size_t n=1;n<1000;n++) {
+    uint32_t *i = (uint32_t *) tialloc::instance()->alloc(n);
+    utf.test_equality(tialloc::instance()->alloc_size(i),n); 
+  }
+
+
 }
 
 int test_tialloc(UnitTest &utf) {
